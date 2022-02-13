@@ -1,107 +1,166 @@
 import React, { useState } from "react";
 import "./App.css";
-import Product from "./Product";
-import polskaHurtownia from "./Zakupy.tsx/PolskaHurtownia";
-import vegetables from "./Zakupy.tsx/Warzywa";
-// import Product from "./Product";
-import makro from "./Zakupy.tsx/Makro";
-// import polskaHurtownia from "./Zakupy.tsx/PolskaHurtownia";
-import warzywa from "./Zakupy.tsx/Warzywa";
-import { isTemplateTail } from "typescript";
+import polskaHurtownia from "./zakupy/polskaHurtownia";
+import vegetables from "./zakupy/warzywa";
+import makro from "./zakupy/makro";
+
+interface Product {
+  item: string;
+  count: number;
+}
 
 const App = () => {
-  vegetables.forEach(() => {
-    return;
-  });
+  const [warzywa, setWarzywa] = useState<Product[]>(vegetables);
+  const [hurtownia, setHurtownia] = useState<Product[]>(polskaHurtownia);
+  const [hurtownia2, setHurtownia2] = useState<Product[]>(makro);
 
-  const [warzywa, setWarzywa] = useState(vegetables);
-  const [input, setInput] = useState("");
-  const handleChange = (e: {
-    preventDefault: () => void;
-    target: { value: string };
-  }) => {
-    e.preventDefault();
+  const [cart, setCart] = useState<Product[]>([]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    products: Product[],
+    setProducts: React.Dispatch<React.SetStateAction<Product[]>>
+  ) => {
     const value = e.target.value;
-    setInput(value);
-    if (value.length > 0) {
-      setWarzywa(
-        vegetables.filter((i) => {
-          return i.item.toLowerCase().includes(value.toLowerCase());
-        })
-      );
+    setProducts(
+      products.filter((i) => {
+        return i.item.toLowerCase().includes(value.toLowerCase());
+      })
+    );
+  };
+
+  const handleAdd = (product: Product) => {
+    const foundProduct = cart.find((item) => product.item === item.item);
+    if (foundProduct) {
+      setCart([
+        ...cart.filter((i) => i !== foundProduct),
+        { item: foundProduct.item, count: foundProduct.count + 1 },
+      ]);
+    } else {
+      setCart([...cart, { item: product.item, count: 1 }]);
     }
   };
-  const [hurtownia, setHurtownia] = useState(polskaHurtownia);
-  const [input1, setInput1] = useState("");
-  const handleChange1 = (e: {
-    preventDefault: () => void;
-    target: { value: React.SetStateAction<string> };
-  }) => {
-    e.preventDefault();
-    setInput1(e.target.value);
-    if (input1.length > 0) {
-      setHurtownia(
-        polskaHurtownia.filter((i) => {
-          return i.item2.match(input1);
-        })
-      );
-    }
-  };
-  const [hurtownia2, setHurtownia2] = useState(makro);
-  const [input2, setInput2] = useState("");
-  const handleChange2 = (e: {
-    preventDefault: () => void;
-    target: { value: React.SetStateAction<string> };
-  }) => {
-    e.preventDefault();
-    setInput2(e.target.value);
-    if (input2.length > 0) {
-      setHurtownia2(
-        makro.filter((i) => {
-          return i.item3.match(input2);
-        })
-      );
+
+  const handleRemove = (product: Product) => {
+    const foundProduct = cart.find((item) => product.item === item.item);
+    if (foundProduct && foundProduct.count > 0) {
+      setCart([
+        ...cart.filter((i) => i !== foundProduct),
+        { item: foundProduct.item, count: foundProduct.count - 1 },
+      ]);
     }
   };
 
   return (
-    <div>
-      <div>
+    <div style={{ display: "flex" }}>
+      <div style={{ width: "500px" }}>
         <input
           type="text"
           placeholder="Znajdz Produkt"
-          onChange={handleChange}
-          value={input}
+          onChange={(e) => handleChange(e, vegetables, setWarzywa)}
         />
         <ul>
           {warzywa.map((veg) => {
-            return <li>{veg.item}</li>;
+            return (
+              <li
+                key={veg.item}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: "8px",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>{veg.item}</div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: "8px",
+                  }}
+                >
+                  <button onClick={() => handleAdd(veg)}>+</button>
+                  <div style={{ border: "1px solid black" }}>
+                    {cart.find((x) => x.item === veg.item)?.count ?? 0}
+                  </div>
+                  <button onClick={() => handleRemove(veg)}>-</button>
+                </div>
+              </li>
+            );
           })}
         </ul>
       </div>
-      <div>
+      <div style={{ width: "500px" }}>
         <input
           type="text"
           placeholder="Znajdz Produkt"
-          onChange={handleChange1}
-          value={input1}
+          onChange={(e) => handleChange(e, polskaHurtownia, setHurtownia)}
         />
         <ul>
           {hurtownia.map((veg) => {
-            return <li>{veg.item2}</li>;
+            return (
+              <li
+                key={veg.item}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: "8px",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>{veg.item}</div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: "8px",
+                  }}
+                >
+                  <button onClick={() => handleAdd(veg)}>+</button>
+                  <div style={{ border: "1px solid black" }}>
+                    {cart.find((x) => x.item === veg.item)?.count ?? 0}
+                  </div>
+                  <button onClick={() => handleRemove(veg)}>-</button>
+                </div>
+              </li>
+            );
           })}
         </ul>
       </div>
-      <div>
+      <div style={{ width: "500px" }}>
         <input
           type="text"
           placeholder="Znajdz Produkt"
-          onChange={handleChange2}
-          value={input2}
+          onChange={(e) => handleChange(e, makro, setHurtownia2)}
         />
         <ul>
           {hurtownia2.map((veg) => {
-            return <li>{veg.item3}</li>;
+            return (
+              <li
+                key={veg.item}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: "8px",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>{veg.item}</div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: "8px",
+                  }}
+                >
+                  <button onClick={() => handleAdd(veg)}>+</button>
+                  <div style={{ border: "1px solid black" }}>
+                    {cart.find((x) => x.item === veg.item)?.count ?? 0}
+                  </div>
+                  <button onClick={() => handleRemove(veg)}>-</button>
+                </div>
+              </li>
+            );
           })}
         </ul>
       </div>
